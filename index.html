@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio - Reseñas Turísticas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #fff;
+      padding: 25px 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    h2 { color: #0056b3; }
+    label { display: block; text-align: left; margin-bottom: 5px; font-weight: bold; }
+    .logo {
+      width: 180px;
+      margin-bottom: 15px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    input[type="text"], input[type="password"] {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    button:hover { background-color: #0056b3; }
+    .register-link { margin-top: 20px; font-size: 14px; }
+    .register-link a { color: #007bff; text-decoration: none; font-weight: bold; }
+    .register-link a:hover { text-decoration: underline; }
+  </style>
+  <script>
+    // Bloqueo de seguridad: si no pasó el captcha, redirige al inicio real
+    if (sessionStorage.getItem("captcha_aprobado") !== "true") {
+      window.location.href = "captcha.html";
+    }
+  </script>
+  <!-- SDKs de Firebase (Versión Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="container" style="margin: 20px;">
+    <img src="Iconos/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+    <h2>Inicio de sesión</h2>
+    <form onsubmit="iniciarSesion(); return false;">
+      <label for="nombreUsuario">Usuario:</label>
+      <input type="text" id="nombreUsuario" placeholder="Tu usuario" required>
+      
+      <label for="claveUsuario">Contraseña:</label>
+      <input type="password" id="claveUsuario" placeholder="Tu contraseña" required>
+      
+      <button type="submit">Entrar</button>
+    </form>
+
+    <div class="register-link">
+      <p>¿No tienes cuenta? <a href="registro.html">Regístrate AQUÍ</a></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

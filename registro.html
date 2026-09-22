@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro - Reseñas Turísticas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif; 
+      background-color: #f4f4f9; 
+      color: #333; 
+      margin: 0;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      min-height: 100vh;
+    }
+    .container {
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center;
+      background: #fff; 
+      padding: 25px 40px; 
+      border-radius: 8px; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 450px; 
+      width: 100%; 
+      text-align: center;
+      margin: 20px 0;
+    }
+    h2 { color: #0056b3; margin-bottom: 20px; }
+    .form-group {
+      position: relative;
+      text-align: left;
+      margin-bottom: 15px;
+    }
+    label { 
+      display: block; 
+      margin-bottom: 5px; 
+      font-weight: bold; 
+      font-size: 14px;
+    }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="password"] {
+      width: 100%; 
+      padding: 10px 35px 10px 10px; 
+      border-radius: 5px; 
+      border: 1px solid #ddd;
+      box-sizing: border-box;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+    .ticket-check {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      color: #28a745;
+      font-weight: bold;
+      font-size: 18px;
+      display: none;
+    }
+    input.valido { border-color: #28a745; }
+    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+    button {
+      flex: 1;
+      padding: 12px; 
+      border: none;
+      border-radius: 5px; 
+      cursor: pointer; 
+      font-size: 14px; 
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    .btn-primary { background-color: #007bff; color: white; }
+    .btn-primary:hover { background-color: #0056b3; }
+    .btn-secondary { background-color: #6c757d; color: white; }
+    .btn-secondary:hover { background-color: #5a6268; }
+    .btn-construction { 
+      background-color: #ffc107; 
+      color: #212529; 
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn-construction:hover { background-color: #e0a800; }
+    p { margin-top: 20px; }
+    a { color: #007bff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+  <!-- SDKs de Firebase (Versión Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <p id="usuarioActivo"></p>
+    <h2>Registro de Usuarios</h2>
+    <form id="frmRegistro" onsubmit="registrarUsuario(event)">
+      
+      <!-- Se corrigieron los IDs para que coincidan con los que procesa script.js -->
+      <div class="form-group">
+        <label for="regNombre">1. Nombre Completo:</label>
+        <input type="text" id="regNombre" placeholder="Ej. Juan Pérez" oninput="validarCampo(this)" required>
+        <span class="ticket-check" id="check-regNombre">✔</span>
+      </div>
+
+      <div class="form-group">
+        <label for="regCorreo">2. Correo Electrónico:</label>
+        <input type="email" id="regCorreo" placeholder="ejemplo@correo.com" oninput="validarCampo(this)" required>
+        <span class="ticket-check" id="check-regCorreo">✔</span>
+      </div>
+
+      <div class="form-group">
+        <label for="regTelefono">3. Teléfono de Contacto:</label>
+        <input type="tel" id="regTelefono" placeholder="Ej. +56912345678" oninput="validarCampo(this)" required>
+        <span class="ticket-check" id="check-regTelefono">✔</span>
+      </div>
+
+      <div class="form-group">
+        <label for="regUsuario">4. Usuario:</label>
+        <input type="text" id="regUsuario" placeholder="Crea tu usuario" oninput="validarCampo(this)" required>
+        <span class="ticket-check" id="check-regUsuario">✔</span>
+      </div>
+
+      <div class="form-group">
+        <label for="regClave">5. Contraseña:</label>
+        <input type="password" id="regClave" placeholder="Mínimo 6 caracteres" oninput="validarCampo(this)" required>
+        <span class="ticket-check" id="check-regClave">✔</span>
+      </div>
+
+      <div class="btn-group">
+        <button type="submit" class="btn-primary">Registrar</button>
+        <button type="button" onclick="otroIngreso()" class="btn-secondary">Otro Ingreso</button>
+      </div>
+
+      <button type="button" onclick="grabarEnConstruccion()" class="btn-construction">🛠️ Grabar (En Construcción)</button>
+    </form>
+
+    <p><a href="index.html">¿Ya tienes cuenta? Inicia sesión</a></p>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    function validarCampo(input) {
+      const checkSpan = document.getElementById("check-" + input.id);
+      let esValido = false;
+
+      if (input.type === "email") {
+        esValido = input.value.includes("@") && input.value.includes(".");
+      } else if (input.id === "regClave") {
+        esValido = input.value.length >= 6;
+      } else {
+        esValido = input.value.trim().length >= 3;
+      }
+
+      if (esValido) {
+        input.classList.add("valido");
+        if (checkSpan) checkSpan.style.display = "inline";
+      } else {
+        input.classList.remove("valido");
+        if (checkSpan) checkSpan.style.display = "none";
+      }
+    }
+
+    function otroIngreso() {
+      document.getElementById("frmRegistro").reset();
+      const inputs = document.querySelectorAll("#frmRegistro input");
+      inputs.forEach(input => input.classList.remove("valido"));
+      
+      const tickets = document.querySelectorAll(".ticket-check");
+      tickets.forEach(ticket => ticket.style.display = "none");
+    }
+
+    function grabarEnConstruccion() {
+      alert("⚠️ Módulo 'Grabar' en construcción. Esta funcionalidad se implementará en la próxima versión.");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Categorías y Lugares</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0;
+      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+    }
+    .container {
+      flex: 1;
+      background: #fff; padding: 25px 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 900px; width: 100%; text-align: center; margin: 20px 0; box-sizing: border-box;
+    }
+    h2, h3 { color: #0056b3; }
+    #usuarioActivo { color: #6c757d; margin-bottom: 20px; font-weight: bold; }
+    #listaCategorias {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    #listaCategorias button {
+      flex: 1 1 180px; padding: 12px; background-image: linear-gradient(to right, #007bff, #0056b3);
+      color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 15px;
+      font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #listaCategorias button:hover {
+      background-image: linear-gradient(to right, #0069d9, #004a99);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .footer-buttons { margin-top: 30px; display: flex; justify-content: center; gap: 15px; }
+    .footer-buttons button {
+      padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; border: none; color: white; font-weight: bold;
+    }
+    #btnReportes { background-color: #17a2b8; }
+    #btnReportes:hover { background-color: #138496; }
+    .btn-logout { background-color: #dc3545; }
+    .btn-logout:hover { background-color: #c82333; }
+    
+    /* Cuadrícula para mostrar el catálogo con mínimo 8 imágenes */
+    .galeria-catalogo {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    .tarjeta-catalogo {
+      background: #fdfdfd;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tarjeta-catalogo:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    }
+    .tarjeta-catalogo img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    .tarjeta-catalogo h4 {
+      margin: 8px 0 4px 0;
+      font-size: 14px;
+      color: #0056b3;
+    }
+    .tarjeta-catalogo p {
+      margin: 2px 0;
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+  <!-- SDKs de Firebase (Versión Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>Categorías</h2>
+    <p id="usuarioActivo"></p>
+
+    <!-- Botones de categorías -->
+    <div id="listaCategorias"></div>
+
+    <hr style="margin: 20px 0;">
+
+    <!-- Sección Carrusel y Mapa -->
+    <h3 id="tituloLugares">Lugares</h3>
+    <div id="listaLugares"></div>
+
+    <hr style="margin: 30px 0;">
+
+    <!-- Catálogo general con todas las fotos (mínimo 8 fotos visibles de inmediato) -->
+    <h3>Catálogo General de Lugares (Todas las Opciones)</h3>
+    <div id="galeriaCompleta" class="galeria-catalogo"></div>
+
+    <div class="footer-buttons">
+      <button id="btnReportes" onclick="window.location.href='BDadmin.html'" style="display: none;">Base de datos (BD)</button>
+      <button onclick="cerrarSesion()" class="btn-logout">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

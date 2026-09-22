@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BD Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px;
+    }
+    .container {
+      background: #fff; 
+      padding: 25px 40px; 
+      border-radius: 8px; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 1200px; margin: auto;
+    }
+    h2, h3 { color: #0056b3; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
+    .section {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+    input[type="text"], input[type="number"], input[type="date"] {
+      padding: 10px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ddd; font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px; background-color: #007bff; color: white; border: none;
+      border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px;
+    }
+    button:hover { background-color: #0056b3; }
+    .btn-secondary { background-color: #6c757d; }
+    .btn-secondary:hover { background-color: #5a6268; }
+    .btn-danger { background-color: #dc3545; }
+    .btn-danger:hover { background-color: #c82333; }
+    .btn-edit { background-color: #ffc107; color: #212529; }
+    .btn-edit:hover { background-color: #e0a800; }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    thead {
+      background-color: #007bff;
+      color: white;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    td button {
+      font-size: 14px; padding: 5px 10px;
+    }
+    ul { padding-left: 20px; }
+    .footer-buttons { text-align: center; margin-top: 20px; }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr; 
+      gap: 25px; 
+    }
+  </style>
+  <!-- Librería Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SDKs de Firebase (Versión Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>Base de datos (Admin)</h2>
+    <p id="usuarioActivo"></p>
+
+    <div class="grid-container">
+      
+      <div class="section">
+        <h3>Todas las reseñas (<span id="totalReseñas">0</span>)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Lugar</th>
+              <th>Comentario</th>
+              <th>Calif.</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="listadoGlobal"></tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3>Usuarios Registrados (<span id="totalUsuarios">0</span>)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Fecha Reg.</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="listaUsuarios"></tbody>
+        </table>
+      </div>
+
+      <div class="section" style="grid-column: span 2;">
+        <h3>Administrar Lugares y Ubicaciones</h3>
+        <button onclick="listarLugaresAdmin()" class="btn-secondary">🔄 Recargar</button>
+        <button onclick="crearLugar()" class="btn-edit" style="background-color: #28a745;">➕ Nuevo Lugar</button>
+        <button onclick="mostrarGraficoReseñasPorLugar()">📊 Ver Gráfico</button>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Ubicación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="listaLugaresAdmin"></tbody>
+        </table>
+
+        <div id="graficoContainer" style="margin-top: 20px; display: none;">
+          <h3>Cantidad de Reseñas por Lugar</h3>
+          <canvas id="graficoReseñas"></canvas>
+        </div>
+      </div>
+
+    </div> 
+
+    <div class="section">
+      <h3>Buscar reseñas por ID o Usuario</h3>
+      <input type="text" id="buscarUsuario" placeholder="ID o Usuario">
+      <button onclick="buscarPorUsuario()">Buscar</button>
+      <table class="results-table">
+        <tbody id="resultadoBusqueda"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>Filtrar reseñas por rango de calificación</h3>
+      <input type="number" id="min" placeholder="Min (1-5)" min="1" max="5">
+      <input type="number" id="max" placeholder="Max (1-5)" min="1" max="5">
+      <button onclick="filtrarRango()">Filtrar</button>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Lugar</th>
+            <th>Comentario</th>
+            <th>Calif.</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="resultadoRango"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>Buscar reseñas por Lugar</h3>
+      <div id="navegacionPorLugar"></div>
+      <div id="lugaresReportesContainer" style="margin-top: 10px;"></div>
+      <table class="results-table" style="margin-top: 10px;">
+        <tbody id="reseñasReportesContainer"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>Filtrar reseñas por rango de fechas</h3>
+      <label for="fechaInicio">Desde:</label>
+      <input type="date" id="fechaInicio">
+      <label for="fechaFin">Hasta:</label>
+      <input type="date" id="fechaFin">
+      <button onclick="filtrarPorFecha()">Filtrar por Fecha</button>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Lugar</th>
+            <th>Comentario</th>
+            <th>Calif.</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="resultadoFechas"></tbody>
+      </table>
+    </div>
+
+    <!-- APARTADO PARA MODIFICAR TODOS LOS DATOS DEL USUARIO -->
+    <div id="seccionEditarUsuario" class="section" style="display: none; border: 2px solid #007bff;">
+      <h3>Modificar Datos del Usuario</h3>
+      <input type="hidden" id="editUserId">
+      
+      <label>Nombre completo:</label>
+      <input type="text" id="editNombre" placeholder="Nombre completo">
+
+      <label>Correo electrónico:</label>
+      <input type="text" id="editCorreo" placeholder="Correo electrónico">
+
+      <label>Teléfono:</label>
+      <input type="text" id="editTelefono" placeholder="Teléfono">
+
+      <label>Nombre de Usuario:</label>
+      <input type="text" id="editUsuario" placeholder="Usuario">
+
+      <label>Contraseña:</label>
+      <input type="text" id="editClave" placeholder="Contraseña">
+
+      <button onclick="guardarCambiosUsuario()" style="background-color: #28a745;">Guardar Cambios</button>
+      <button onclick="cancelarEdicionUsuario()" class="btn-secondary">Cancelar</button>
+    </div>
+
+    <div class="footer-buttons">
+      <button onclick="irCategorias()" class="btn-secondary">← Volver</button>
+      <button onclick="cerrarSesion()" class="btn-danger">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
